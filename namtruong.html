@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <base target="_top">
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        padding: 20px;
+        background-color: #f4f4f9;
+        color: red;
+        margin-bottom: 100px;
+      }
+      h1 {
+        font-size: 22px;
+        margin-bottom: 20px;
+        text-align: center;
+        color: #4285F4;
+      }
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #555;
+      }
+      input[type="text"], input[type="number"], textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      textarea {
+        height: 80px;
+        resize: vertical;
+      }
+      button {
+        width: 100%;
+        padding: 12px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      button:hover {
+        background-color: #218838;
+      }
+      .radio-group {
+        margin-bottom: 20px;
+      }
+      .radio-group label {
+        margin-right: 10px;
+      }
+      .chat-container {
+        margin-top: 20px;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+      }
+      .chat {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .question, .answer {
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 80%;
+      }
+      .question {
+        background-color: #e1f5fe;
+        align-self: flex-end;
+        text-align: right;
+        color: #0277bd;
+      }
+      .answer {
+        background-color: #f1f8e9;
+        align-self: flex-start;
+        text-align: left;
+        color: #558b2f;
+      }
+      .chart-container {
+  width: 100%;
+  max-width: 600px; /* Adjust max width if needed */
+  margin: auto;
+  margin-bottom: 20px; /* Add space between charts */
+}
+
+.chart-container h3 {
+  text-align: center;
+  color: #333;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+#barChart, #pieChart, #lineChart, #scatterChart {
+  width: 100%;
+  height: 400px; /* Height can be adjusted or made responsive if needed */
+}
+button {
+	
+  width: 30%;
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #218838;
+}
+
+    </style>
+  </head>
+  <body>
+    <div>
+      <h1>SCPN</h1>
+      
+      <label for="productName">Product Name</label>
+      <input type="text" id="productName" placeholder="Enter product name">
+      
+      <label for="revenue">Total Revenue</label>
+      <input type="number" id="revenue" placeholder="Enter total revenue">
+      
+      <div class="radio-group">
+        <label>Choose Key:</label>
+        <div id="radioButtons"></div>
+      </div>
+
+      <button onclick="submitData()">Submit</button>
+
+      <div class="chat-container">
+        <div id="chat" class="chat"></div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <label for="chatInput">Chat with SCPN:</label>
+        <input type="text" id="chatInput" placeholder="Type a question...">
+        <button onclick="submitChat()">Send</button>
+      </div>
+    </div>
+    <div class="chart">
+      <div class="chart-container">
+        <h3>Bar Chart</h3>
+        <div id="barChart"></div>
+        <button onclick="HienThi('barChart')">Thêm biểu đồ </button>
+      </div>
+      <div class="chart-container">
+        <h3>Pie Chart</h3>
+        <div id="pieChart"></div>
+        <button onclick="HienThi('pieChart')">Thêm biểu đồ </button>
+      </div>
+      <div class="chart-container">
+        <h3>Line Chart</h3>
+        <div id="lineChart"></div>
+        <button onclick="HienThi('lineChart')">Thêm biểu đồ </button>
+      </div>
+      <div class="chart-container">
+        <h3>Scatter Chart</h3>
+        <div id="scatterChart"></div>
+        <button onclick="HienThi('scatterChart')">Thêm biểu đồ </button>
+      </div>
+      </div>
+    <script>
+      
+      function loadOptions() {
+        google.script.run.withSuccessHandler(renderRadioButtons).getKeysFromFirstRow()
+      }
+
+      function renderRadioButtons(keys) {
+        var radioButtonsDiv = document.getElementById('radioButtons')
+        keys.forEach(function(key, index) {
+          var label = document.createElement('label')
+          label.innerHTML = '<input type="radio" name="key" value="' + key + '" ' + (index === 0 ? 'checked' : '') + '> ' + key
+          radioButtonsDiv.appendChild(label)
+        })
+      }
+
+      function submitData() {
+        var productName = document.getElementById('productName').value
+        var revenue = document.getElementById('revenue').value
+        var selectedKey = document.querySelector('input[name="key"]:checked').value
+
+        google.script.run.saveData(productName, revenue, selectedKey)
+        
+        addChat('question', `Doanh thu tháng này đã tăng bao nhiêu % so với tháng trước?`)
+        addChat('answer', `Dựa trên số liệu giả định:<br>
+        <strong>Doanh thu tháng trước:</strong> $40,000<br>
+        <strong>Doanh thu tháng này:</strong> $50,000<br>
+        <strong>Tăng trưởng doanh thu:</strong><br>
+        Tăng trưởng % = <br>
+        <pre>(50,000 - 40,000) / 40,000 
+        * 100 = 25%</pre><br>
+        <strong>=> Doanh thu tháng này đã tăng 25% so với tháng trước.</strong>`)
+      }
+
+      function submitChat() {
+        var chatInput = document.getElementById('chatInput').value
+        if (chatInput.trim() !== '') {
+          addChat('question', chatInput)
+          document.getElementById('chatInput').value = ''
+
+          google.script.run.withSuccessHandler(function(answer) {
+            addChat('answer', answer)
+          }).withFailureHandler(function(error) {
+            addChat('answer', 'Error: ' + error.message)
+          }).processUserQuery(chatInput)
+        }
+      }
+
+      document.getElementById('chatInput').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+          event.preventDefault()
+          submitChat()
+        }
+      })
+
+      function addChat(type, text) {
+        var chatContainer = document.getElementById('chat')
+        var message = document.createElement('div')
+        message.classList.add(type)
+        message.innerHTML = text
+        chatContainer.appendChild(message)
+      }
+
+      document.addEventListener('DOMContentLoaded', loadOptions)
+      
+    </script>
+    <script>
+      google.charts.load('current', { packages: ['corechart'] });
+      google.charts.setOnLoadCallback(drawAllCharts);
+      
+      function drawAllCharts() {
+        drawBarChart();
+        drawPieChart();
+        drawLineChart();
+        drawScatterChart();
+      }
+      
+      function drawBarChart() {
+        const data = google.visualization.arrayToDataTable([
+          ['Country', 'Mhl'],
+          ['Italy', 55],
+          ['France', 49],
+          ['Spain', 44],
+          ['USA', 24],
+          ['Argentina', 15]
+        ]);
+      
+        const options = { title: 'World Wide Wine Production' };
+      
+        const chart = new google.visualization.BarChart(document.getElementById('barChart'));
+        chart.draw(data, options);
+      }
+      
+      function drawPieChart() {
+        const data = google.visualization.arrayToDataTable([
+          ['Country', 'Mhl'],
+          ['Italy', 54.8],
+          ['France', 48.6],
+          ['Spain', 44.4],
+          ['USA', 23.9],
+          ['Argentina', 14.5]
+        ]);
+      
+        const options = { title: 'World Wide Wine Production' };
+      
+        const chart = new google.visualization.PieChart(document.getElementById('pieChart'));
+        chart.draw(data, options);
+      }
+      
+      function drawLineChart() {
+        const data = google.visualization.arrayToDataTable([
+          ['Price', 'Size'],
+          [50, 7], [60, 8], [70, 8], [80, 9], [90, 9],
+          [100, 9], [110, 10], [120, 11], [130, 14], [140, 14], [150, 15]
+        ]);
+      
+        const options = { 
+          title: 'House Prices vs. Size',
+          hAxis: { title: 'Square Meters' },
+          vAxis: { title: 'Price in Millions' }
+        };
+      
+        const chart = new google.visualization.LineChart(document.getElementById('lineChart'));
+        chart.draw(data, options);
+      }
+      
+      function drawScatterChart() {
+        const data = google.visualization.arrayToDataTable([
+          ['Price', 'Size'],
+          [50, 7], [60, 8], [70, 8], [80, 9], [90, 9],
+          [100, 9], [110, 10], [120, 11], [130, 14], [140, 14], [150, 15]
+        ]);
+      
+        const options = { 
+          title: 'House Prices vs. Size',
+          hAxis: { title: 'Square Meters' },
+          vAxis: { title: 'Price in Millions' }
+        };
+      
+        const chart = new google.visualization.ScatterChart(document.getElementById('scatterChart'));
+        chart.draw(data, options);
+      }
+      
+      window.addEventListener('resize', drawAllCharts); // Re-draw charts on window resize
+      
+      </script>
+      
+  </body>
+</html>
