@@ -46,7 +46,7 @@ Given the following list of items:
 
 ${JSON.stringify(itemsArray)}
 
-Group these items into categories. Predict appropriate category names based on the items, and return a JavaScript object where each key is a category name and each value is an array of items belonging to that category.
+Group these items into categories. Predict appropriate category names based on the items, name of the category should be in Vietnamese, and return a JavaScript object where each key is a category name and each value is an array of items belonging to that category.
 
 The output should be a valid JavaScript object, like:
 

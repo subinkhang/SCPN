@@ -1,7 +1,7 @@
 function processRevenueData() {
     // Open the spreadsheet and select the 'Doanh thu chi tiết' sheet
     var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = spreadsheet.getSheetByName('Doanh thu chi tiết');
+    var sheet = spreadsheet.getSheetByName('doanh_thu_chi_tiet');
   
     // Get all data from the sheet
     var data = sheet.getDataRange().getValues();
@@ -167,9 +167,9 @@ function processRevenueData() {
     headers = requiredHeaders;
   
     // Update or create the 'Doanh thu_xử lý' sheet
-    var newSheet = spreadsheet.getSheetByName('Doanh thu_xử lý');
+    var newSheet = spreadsheet.getSheetByName('doanh_thu_xu_ly');
     if (!newSheet) {
-      newSheet = spreadsheet.insertSheet('Doanh thu_xử lý');
+      newSheet = spreadsheet.insertSheet('doanh_thu_xu_ly');
     } else {
       newSheet.clear();
     }
