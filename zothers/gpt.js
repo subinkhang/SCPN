@@ -1,6 +1,4 @@
 // const { GPT_API, BASE_URL } = process.env;
-const GPT_API = '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'
-const BASE_URL = 'https://api.openai.com/v1/chat/completions'
 
 const headers = {
   "Content-Type": "application/json",
