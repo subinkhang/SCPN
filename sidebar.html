@@ -149,6 +149,23 @@
       <label>Choose Key:</label>
       <div id="radioButtons"></div>
     </div>
+
+    <div style="margin-top: 20px;">
+      <label for="facebookAdsSheets">Sheet từ FacebookAds:</label>
+      <select id="facebookAdsSheets">
+        <option value="">--Chọn sheet--</option>
+      </select>
+    </div>
+    <div style="margin-top: 20px;">
+      <label for="salesRevenueSheets">Sheet từ Doanh thu bán hàng:</label>
+      <select id="salesRevenueSheets">
+        <option value="">--Chọn sheet--</option>
+      </select>
+    </div>
+    <div style="margin-top: 20px;">
+      <button id="saveSelections" onclick="saveSheetSelections()">Lưu 2 sheet</button>
+    </div>
+    
     <button onclick="submitData()">Submit</button>
     <div class="chat-container">
       <div id="chat" class="chat"></div>
@@ -206,15 +223,15 @@
       var revenue = document.getElementById('revenue').value
       var selectedKey = document.querySelector('input[name="key"]:checked').value
       google.script.run.saveData(productName, revenue, selectedKey)
-      addChat('question', `Doanh thu tháng này đã tăng bao nhiêu % so với tháng trước?`)
-      addChat('answer', `Dựa trên số liệu giả định:<br>
-      <strong>Doanh thu tháng trước:</strong> $40,000<br>
-      <strong>Doanh thu tháng này:</strong> $50,000<br>
-      <strong>Tăng trưởng doanh thu:</strong><br>
-      Tăng trưởng % = <br>
-      <pre>(50,000 - 40,000) / 40,000 
-      * 100 = 25%</pre><br>
-      <strong>=> Doanh thu tháng này đã tăng 25% so với tháng trước.</strong>`)
+      // addChat('question', `Doanh thu tháng này đã tăng bao nhiêu % so với tháng trước?`)
+      // addChat('answer', `Dựa trên số liệu giả định:<br>
+      // <strong>Doanh thu tháng trước:</strong> $40,000<br>
+      // <strong>Doanh thu tháng này:</strong> $50,000<br>
+      // <strong>Tăng trưởng doanh thu:</strong><br>
+      // Tăng trưởng % = <br>
+      // <pre>(50,000 - 40,000) / 40,000 
+      // * 100 = 25%</pre><br>
+      // <strong>=> Doanh thu tháng này đã tăng 25% so với tháng trước.</strong>`)
     }
     function submitChat() {
       var chatInput = document.getElementById('chatInput').value
@@ -326,6 +343,55 @@
       chart.draw(data, options);
     }
     window.addEventListener('resize', drawAllCharts);
+  </script>
+
+  <script>
+    // Hàm tải danh sách các sheet
+    function loadSheets() {
+      google.script.run.withSuccessHandler(renderFacebookAdsSheets).getSheets();
+      google.script.run.withSuccessHandler(renderSalesRevenueSheets).getSheets();
+    }
+
+    // Render danh sách sheet cho Facebook Ads
+    function renderFacebookAdsSheets(sheetNames) {
+      const dropdown = document.getElementById('facebookAdsSheets');
+      sheetNames.forEach(sheetName => {
+        const option = document.createElement('option');
+        option.value = sheetName;
+        option.textContent = sheetName;
+        dropdown.appendChild(option);
+      });
+    }
+
+    // Render danh sách sheet cho doanh thu bán hàng
+    function renderSalesRevenueSheets(sheetNames) {
+      const dropdown = document.getElementById('salesRevenueSheets');
+      sheetNames.forEach(sheetName => {
+        const option = document.createElement('option');
+        option.value = sheetName;
+        option.textContent = sheetName;
+        dropdown.appendChild(option);
+      });
+    }
+
+    // Gọi hàm loadSheets khi trang tải xong
+    document.addEventListener('DOMContentLoaded', loadSheets);
+
+    function saveSheetSelections() {
+      const facebookAdsSheet = document.getElementById('facebookAdsSheets').value;
+      const salesRevenueSheet = document.getElementById('salesRevenueSheets').value;
+
+      if (!facebookAdsSheet || !salesRevenueSheet) {
+        alert('Vui lòng chọn cả hai sheet trước khi lưu.');
+        return;
+      }
+
+      google.script.run.withSuccessHandler(function(response) {
+        alert(response); // Thông báo khi lưu thành công
+      }).saveSheetSelectionsToVariable(facebookAdsSheet, salesRevenueSheet);
+    }
+
+
   </script>
 </body>
 </html>

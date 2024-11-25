@@ -1,2 +1,4 @@
-const sheetDTCT = 'Doanh thu chi tiết'
-const sheetRawData = 'Raw Data'
+const properties = PropertiesService.getScriptProperties();
+
+const sheetDTCT = properties.getProperty('salesRevenueSheet');
+const sheetRawData = properties.getProperty('facebookAdsSheet');

@@ -131,3 +131,35 @@ function processSelectedHeaders(selectedHeaders) {
   // Thực hiện logic cần thiết với các tiêu đề đã chọn (ví dụ: lọc dữ liệu theo các tiêu đề này)
   // Code xử lý thêm nếu cần
 }
+
+function getSheets() {
+  const sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
+  const sheetNames = sheets.map(sheet => sheet.getName());
+  Logger.log(sheetNames);
+  return sheetNames;
+}
+
+function saveSheetSelectionsToVariable(facebookAdsSheet, salesRevenueSheet) {
+  // Lưu dữ liệu vào Script Properties
+  const properties = PropertiesService.getScriptProperties();
+  properties.setProperty('facebookAdsSheet', facebookAdsSheet);
+  properties.setProperty('salesRevenueSheet', salesRevenueSheet);
+  return 'Selections saved successfully';
+}
+
+function getSheetSelections() {
+  // Lấy dữ liệu từ Script Properties
+  const properties = PropertiesService.getScriptProperties();
+  return {
+    facebookAdsSheet: properties.getProperty('facebookAdsSheet'),
+    salesRevenueSheet: properties.getProperty('salesRevenueSheet')
+  };
+}
+
+function loadSheetSelections() {
+  google.script.run.withSuccessHandler(function(selections) {
+    console.log('Facebook Ads Sheet:', selections.facebookAdsSheet);
+    console.log('Sales Revenue Sheet:', selections.salesRevenueSheet);
+    // Bạn có thể sử dụng selections.facebookAdsSheet và selections.salesRevenueSheet ở đây.
+  }).getSheetSelections();
+}

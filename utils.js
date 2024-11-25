@@ -110,3 +110,43 @@ function generateReplaceDict(productsDTCT, productsRaw) {
 
   return replaceDict;
 }
+
+function mappingProductInRawData(columnNeedToMapping, columnProduct) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetRawData);
+
+  if (!sheet) {
+    Logger.log(`Sheet '${sheetRawData}' không tồn tại.`);
+    return {};
+  }
+
+  const data = sheet.getDataRange().getValues();
+
+  if (data.length < 2) {
+    Logger.log('Dữ liệu không đủ để tạo ánh xạ.');
+    return {};
+  }
+
+  // Xác định các cột cần thiết
+  const headers = data[0];
+  const adNameIndex = headers.indexOf(columnNeedToMapping); // Cột Ad Name
+  const monIndex = headers.indexOf(columnProduct); // Cột Product
+
+  if (adNameIndex === -1 || monIndex === -1) {
+    Logger.log(`Không tìm thấy cột '${columnNeedToMapping}' hoặc '${columnProduct}'`);
+    return {};
+  }
+
+  // Tạo ánh xạ từ các giá trị trong cùng hàng
+  const adNameToMonAn = {};
+  for (let i = 1; i < data.length; i++) {
+    const adName = data[i][adNameIndex];
+    const mon = data[i][monIndex];
+
+    if (adName && mon) {
+      adNameToMonAn[adName] = mon;
+    }
+  }
+
+  return adNameToMonAn;
+}
+

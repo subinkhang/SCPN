@@ -16,15 +16,14 @@ function processRevenueData() {
   var sheet = spreadsheet.getSheetByName(sheetDTCT)
 
   if (!sheet) {
-    Logger.log("Sheet 'Doanh thu chi tiết' không tồn tại.")
+    SpreadsheetApp.getUi().alert(`Sheet '${sheetDTCT}' không tồn tại.`);
     return []
   }
 
-  // Lấy tất cả dữ liệu từ sheet 'Doanh thu chi tiết'
   var data = sheet.getDataRange().getValues()
 
   if (data.length < 2) {
-    Logger.log("Không có dữ liệu để xử lý trong 'Doanh thu chi tiết'.")
+    SpreadsheetApp.getUi().alert(`Không có dữ liệu để xử lý trong ${sheetDTCT}`);
     return []
   }
 
@@ -194,16 +193,17 @@ function processRevenueData() {
   }
 }
 
+//================================================================================================================================
 /**
  * Tạo sheet 'Report Data Hehe' dựa trên dữ liệu doanh thu đã xử lý và 'Raw Data'.
  * @param {Object} processedRevenueData - Dữ liệu doanh thu đã được xử lý.
  */
 function generateReportData(processedRevenueData) {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
-  const rawDataSheet = ss.getSheetByName('Raw Data')
+  const rawDataSheet = ss.getSheetByName(sheetRawData)
 
   if (!rawDataSheet) {
-    Logger.log("Sheet 'Raw Data' không tồn tại.")
+    Logger.log(`Sheet '${sheetRawData}' không tồn tại.`)
     return
   }
 
@@ -226,45 +226,15 @@ function generateReportData(processedRevenueData) {
     'Website': ['Website']
   }
 
-  // Định nghĩa ánh xạ giữa Ad Name và Món ăn
-  const adNameToMonAn = {
-    'HN_Conversion_Album_Combo gia đình': 'Gia Đình',
-    'HN_Sales_Reels_Combo Hanji': 'Cô Đơn',
-    'HN_Sales_Album_Combo 359K': 'Tình Yêu',
-    'HN_Mess_Album_M1T1_Combo 188K': 'Cô Đơn',
-    'FB_Mess_HN_AP_Album_APr_CB GĐình T12': 'Gia Đình',
-    'HN_Mess_Album_Combo Gia Đình': 'Gia Đình',
-    'HN_Sales_Reels_NDA': 'Cô Đơn',
-    'FB_Mess_HN_AP_Single Video_APr_Mukkbang 1': 'Tình Yêu',
-    'HN_Sales_Reels_Eat': 'Tình Yêu',
-    'HN_Conversion_Reels_Hanji': 'Cô Đơn',
-    'HN_Conversion_Reels_Cocovie': 'Gia Đình',
-    'HN_Sales_Reels_Cocovie': 'Gia Đình',
-    'HN_Sales_Reels_Hanji': 'Cô Đơn',
-    'HN_RV_Reels_KOC Hanji': 'Cô Đơn',
-    'HN_Mess_Album_M1T1_Cũ': 'M1T1',
-    'FB_Reach_HN_AP_Album_APr_M1T1 T12': 'M1T1',
-    'HN_Mess_Reels_2/8': 'Cá Hồi',
-    'HN_Conversion_Reels_2/8': 'Cá Hồi',
-    'HN_Conversion_Reels_6/8': 'Tình Yêu',
-    'HN_Mess_Reels_Combo Gia Đình': 'Gia Đình',
-    'HN_Mess_Reels_Combo Tình Yêu': 'Tình Yêu',
-    'FB_Reach_HN_AP_Reels_APr_Combo cô đơn': 'Cô Đơn',
-    'FB_Reach_HN_AP_Reels_APr_Combo gia đình': 'Gia Đình',
-    'FB_Reach_HN_AP_Reels_APr': 'Tình Yêu',
-    'FB_Mess_HN_AP_Album_APr_Combo gia đình': 'Gia Đình',
-    'FB_Reach_HN_AP_Album_APr_Combo tình yêu': 'Tình Yêu',
-    'HN_Mess_Album_Combo Tình Yêu': 'Tình Yêu',
-    'FB_Mess_HN_AP_Album_APr_Website': 'Website',
-    'FB_Mess_HN_AP_Album_APr_Feedback': 'Gia Đình'
-    // Thêm các ánh xạ nếu cần
-  }
+  // Tạo ánh xạ từ Ad Name đến Món ăn
+  const adNameToMonAn = mappingProductInRawData('Ad Name', 'Product')
+  const audienceToProduct = mappingProductInRawData('Audience', 'Product')
 
   // Lấy dữ liệu từ sheet 'Raw Data'
   const rawData = rawDataSheet.getDataRange().getValues()
 
   if (rawData.length < 2) {
-    Logger.log("Không có dữ liệu để xử lý trong 'Raw Data'.")
+    Logger.log(`Không có dữ liệu để xử lý trong ${sheetRawData}.`)
     return
   }
 
@@ -278,7 +248,7 @@ function generateReportData(processedRevenueData) {
   revenueData.forEach(function(row) {
     const [ngay, tenSanPham, tienHang, category] = row
     const dateString = formatDate(ngay)
-    if (!doanhThuMap[dateString]) {
+    if (!doanhThuMap[dateString]) {sheetDTCT
       doanhThuMap[dateString] = {}
     }
     if (!doanhThuMap[dateString][category]) {
@@ -312,6 +282,10 @@ function generateReportData(processedRevenueData) {
       threeSecondVideoViews,
       thruPlays,
       onFacebookPurchases
+      ,
+      ,
+      ,
+      audience
     ] = row
 
     const dateString = formatDate(day)
@@ -352,7 +326,8 @@ function generateReportData(processedRevenueData) {
           clicksAll: 0,
           threeSecondVideoViews: 0,
           thruPlays: 0,
-          onFacebookPurchases: 0
+          onFacebookPurchases: 0,
+          audience: 0
         }
       }
       const stats = amountSpentMap[dateString][monAn]
@@ -373,6 +348,7 @@ function generateReportData(processedRevenueData) {
     'Category',
     'Món',
     'Doanh Thu',
+    'Ad Name',
     'Amount Spent',
     'Impressions',
     'Messaging Conversations Started',
@@ -380,7 +356,8 @@ function generateReportData(processedRevenueData) {
     'Clicks (All)',
     '3-Second Video Views',
     'ThruPlays',
-    'On-Facebook Purchases'
+    'On-Facebook Purchases',
+    'Audience'
   ])
 
   // Lặp qua doanhThuMap để điền dữ liệu vào sheet 'Report Data Hehe'
@@ -392,6 +369,7 @@ function generateReportData(processedRevenueData) {
           doanhThuMap[date][category] && doanhThuMap[date][category][mon]
             ? doanhThuMap[date][category][mon]
             : 0
+
         const stats =
           amountSpentMap[date] && amountSpentMap[date][mon]
             ? amountSpentMap[date][mon]
@@ -403,13 +381,33 @@ function generateReportData(processedRevenueData) {
                 clicksAll: 0,
                 threeSecondVideoViews: 0,
                 thruPlays: 0,
-                onFacebookPurchases: 0
+                onFacebookPurchases: 0,
+                audience: 0
               }
+
+      // Thêm giá trị AdName (nếu không có thì để trống)
+      const adName =
+      amountSpentMap[date] && amountSpentMap[date][mon]
+        ? Object.keys(adNameToMonAn).find(
+            (key) => adNameToMonAn[key] === mon
+          ) || ''
+        : ''
+
+      const audience =
+        amountSpentMap[date] && amountSpentMap[date][mon]
+          ? Object.keys(audienceToProduct).find(
+              (key) => audienceToProduct[key] === mon
+            ) || ''
+          : ''
+
+        // const audience = audienceToProduct[mon] || stats.audience || '';
+
         reportDataSheet.appendRow([
           date,
           category,
           mon,
           doanhThu,
+          adName,
           stats.amountSpent,
           stats.impressions,
           stats.messagingConversationsStarted,
@@ -417,16 +415,13 @@ function generateReportData(processedRevenueData) {
           stats.clicksAll,
           stats.threeSecondVideoViews,
           stats.thruPlays,
-          stats.onFacebookPurchases
+          stats.onFacebookPurchases,
+          audience
         ])
       })
     }
   }
 
   // Tự động điều chỉnh kích thước cột
-  reportDataSheet.autoResizeColumns(1, 12)
+  reportDataSheet.autoResizeColumns(1, 14)
 }
-
-// Gọi hàm chính để chạy toàn bộ quy trình
-// runAll()
-  
