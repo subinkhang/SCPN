@@ -1,6 +1,3 @@
-/**
- * Hàm chính để xử lý dữ liệu doanh thu và tạo báo cáo.
- */
 function runAll() {
   // Xử lý dữ liệu doanh thu và nhận kết quả xử lý
   var processedRevenueData = processRevenueData()
@@ -16,7 +13,7 @@ function runAll() {
 function processRevenueData() {
   // Mở file Google Sheets và chọn sheet 'Doanh thu chi tiết'
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet()
-  var sheet = spreadsheet.getSheetByName('Doanh thu chi tiết')
+  var sheet = spreadsheet.getSheetByName(sheetDTCT)
 
   if (!sheet) {
     Logger.log("Sheet 'Doanh thu chi tiết' không tồn tại.")
@@ -35,31 +32,10 @@ function processRevenueData() {
   var df = data.slice(1) // Bỏ qua hàng tiêu đề
   var headers = data[0]
 
-  // Định nghĩa từ điển thay thế tên sản phẩm
-  var replaceDict = {
-    'Combo Gia Đình': 'Gia Đình',
-    'Combo Tình Yêu': 'Tình Yêu',
-    'Combo Cô Đơn': 'Cô Đơn',
-    'Mua 01 Tặng 01': 'M1T1',
-    'Phí ship': 'Phí Ship',
-    'Phụ thu gửi bến xe': 'Phí Ship',
-    'Ship đồng giá 10k': 'Phí Ship',
-    'Cơm trắng': 'Khác',
-    'Gừng hồng': 'Khác',
-    'Set rong biển khô ăn kèm': 'Khác',
-    'Kim chi Hàn Quốc': 'Khác',
-    'Salad rong biển': 'Khác',
-    'Trứng cua': 'Khác',
-    'NOW CÁ TO + TÔM TO': 'Khác',
-    'NOW CÁ TO + TRỨNG TO': 'Khác',
-    'Phụ thu': 'Khác',
-    'Tôm ngâm tương hũ lớn 250gr': 'Tôm',
-    'Tôm ngâm tương hũ nhỏ 150gr': 'Tôm',
-    'Trứng ngâm tương hũ lớn': 'Trứng',
-    'Trứng ngâm tương hũ nhỏ': 'Trứng',
-    'Cá hồi ngâm tương hũ lớn 250gr': 'Cá Hồi',
-    'Cá hồi ngâm tương hũ nhỏ 150gr': 'Cá Hồi'
-  }
+  // Đang thay thế phụ thuộc vào các Product trong sheet 'Raw Data'
+  var productsDTCT = getAllProductsFromInputSheet(sheetDTCT, 'C')
+  var productsRaw = getAllProductsFromInputSheet(sheetRawData, 'V')
+  var replaceDict = generateReplaceDict(productsDTCT, productsRaw);
 
   // Tìm chỉ số của các cột cần thiết
   var productIndex = headers.indexOf('Tên sản phẩm')
